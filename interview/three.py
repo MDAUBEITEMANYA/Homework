@@ -217,3 +217,19 @@ dict_3 = {'a': 300, 'd': 100}
 
 # print(combine_dicts(dict_1, dict_2))
 # print(combine_dicts(dict_1, dict_2, dict_3))
+
+# Simplification:
+# only two dicts need to be joined.
+
+dict1 = {"a": {"b": "c"}}
+dict2 = {"a": {"e": "d"}, "b": {"1": "2"}}
+
+
+def join_dict(dict1: dict, dict2: dict):
+    tmp_list_values = []
+    for keya in dict1:
+        if keya in dict2:
+            dict2[keya].update(dict1[keya])
+    print(dict2)
+
+join_dict(dict1, dict2)
