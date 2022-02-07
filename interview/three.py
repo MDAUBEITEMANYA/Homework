@@ -2,6 +2,7 @@ from collections.abc import Iterable
 import re
 
 # 3.0
+from math import prod
 from typing import List
 
 
@@ -43,20 +44,18 @@ def convert_string(string):
 # 3.3
 def is_palindrome(string):
     string = string.lower().replace(" ", "")
-    for i in range(0, int(len(string) / 2)):
-        if string[i] != string[len(string) - i - 1]:
-            return False
-    return True
+    return string == string[::-1]
 
 
 # print(is_palindrome('stanley Yelnats'))
+# print(is_palindrome('starnley Yelnats'))
 
 # 3.4
-def split_strings(sentence: str):
+def split_strings(sentence: str, separator=" "):
     split_value = []
     tmp = ''
     for x in sentence:
-        if x == ' ':
+        if x == separator:
             split_value.append(tmp)
             tmp = ''
         else:
@@ -66,7 +65,7 @@ def split_strings(sentence: str):
     return split_value
 
 
-# print(split_strings('This is a sentence'))
+# print(split_strings('123', '2'))
 
 # 3.5
 def split_by_index(sentence: str, indexes: List[int]):
@@ -92,29 +91,37 @@ def split_by_index(sentence: str, indexes: List[int]):
 
 
 # print(split_by_index("pythoniscool,isn'tit?", [6, 8, 12, 13, 18]))
+# 3.6
+def get_digits(num: int):
+    tmp_int = num
+    my_list = []
+    while tmp_int > 0:
+        my_list.append(tmp_int % 10)
+        tmp_int = tmp_int // 10
+    my_list.reverse()
+    return tuple(my_list)
+
+
+# print(get_digits(87178291199))
+
 
 # 3.7
 def get_longest_word(sentence: str):
     longest = max(sentence.split(), key=len)
     return longest
 
+    # print(get_longest_word('Python is simple and effective!'))
 
-# print(get_longest_word('Python is simple and effective!'))
-
-# 3.8
-def foo(my_list: List[int]):
-    output_list = []
-    for x in range(len(my_list)):
-        final_num = 1
-        for i in range(len(my_list)):
-            if i == x:
-                continue
-            final_num = final_num * my_list[i]
-        output_list.append(final_num)
-    return output_list
+    # 3.8
 
 
-# print( foo([3, 2, 1]))
+def foo(input_list: list):
+    mul = prod(input_list)
+    return [int(mul / x) for x in input_list]
+
+
+print(foo([3, 2, 1]))
+
 
 # 3.9
 def get_pairs(lst: List):
@@ -134,7 +141,49 @@ def find_characters(*my_strings: List[str]):
     return set.intersection(*map(set, my_strings)) if my_strings else set()
 
 
+def find_characters_least_one(my_strings: List[str]):
+    character_list = []
+    for i in my_strings:
+        for j in i:
+            character_list.append(j)
+    character_list = list(set(character_list))
+    character_list.sort()
+    return character_list
+
+
+def find_two_characters(my_strings: List[str]):
+    character_dict = {}
+    character_list = []
+    if len(my_strings) < 2:
+        return None
+    my_doll = map(set, my_strings)
+    for i in my_doll:
+        for key in i:
+            if key in character_dict:
+                character_dict[key] = character_dict[key] + 1
+            else:
+                character_dict[key] = 1
+    for key in character_dict:
+        if character_dict[key] > 1:
+            character_list.append(key)
+    character_list.sort()
+    return character_list
+
+
+import string
+
+
+def find_characters_alphabet(my_strings: List[str]):
+    in_strings = find_characters_least_one(my_strings)
+    alphabet = list(string.ascii_lowercase)
+    for i in in_strings:
+        alphabet.remove(i)
+    return alphabet
+
+
 test_strings = ["hello", "world", "python", ]
+print(find_two_characters(test_strings))
+print(find_characters_alphabet(test_strings))
 
 
 # print(find_characters(*test_strings))
@@ -146,18 +195,6 @@ def generate_squares(number):
 
 
 # print(generate_squares(5))
-
-# 3.14
-
-def join_two_dict(*args: dict):
-    final_dict = {}
-   # for x in args:
-
-
-#  for x in dict1():
-
-#  d4.update(dict2)
-# return d4
 
 
 # print(join_two_dict({"a": {"b": "c"}}, {"a": {"e": "d"}, "b": {"1": "2"}}))
@@ -178,5 +215,5 @@ dict_1 = {'a': 100, 'b': 200}
 dict_2 = {'a': 200, 'c': 300}
 dict_3 = {'a': 300, 'd': 100}
 
-print(combine_dicts(dict_1, dict_2))
-print(combine_dicts(dict_1, dict_2, dict_3))
+# print(combine_dicts(dict_1, dict_2))
+# print(combine_dicts(dict_1, dict_2, dict_3))
