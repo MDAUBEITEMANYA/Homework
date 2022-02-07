@@ -7,9 +7,7 @@ import pandas as pandasForSortingCSV
 
 def file_find_name():
     my_file = open("unsorted_names.txt", "r")
-    names_list = []
-    for line in my_file:
-        names_list.append(line)
+    names_list = my_file.readlines()
     names_list = sorted(set(names_list))
     print(names_list)
     my_file.close()
@@ -17,24 +15,20 @@ def file_find_name():
 
 
 def file_write(names_list: list):
-    my_file = open("sorted_names.txt", "a")
-    for name in names_list:
-        my_file.write(name)
-    my_file.close()
+    with open("unsorted_names.txt", "r") as my_file:
+        my_file.writelines(names_list)
 
 
 # file_write(file_find_name())
 
 def most_common_words(filepath, number_of_words):
-    my_file = open(filepath, "r")
-    word_list = []
-    for line in my_file:
-
-        tpm_line = line.lower().split()
-        for word in tpm_line:
-            word_list.append(word)
-    word_list = tuple(word_list)
-    count = Counter(word_list)
+    with open(filepath, "r") as my_file:
+        word_list = []
+        for line in my_file:
+            tpm_line = line.lower().split()
+            word_list.extend(tpm_line)
+        word_list = word_list
+        count = Counter(word_list)
     return count.most_common(number_of_words)
 
 
@@ -45,19 +39,16 @@ def get_top_performers(file_path, number_of_top_students):
     my_file = open(file_path, "r")
     word_dict = {}
     for line in my_file:
-        tpm_line = line.lower().replace('\n', '').split(',')
+        tpm_line = line.lower().strip("\n").split(',')
         word_dict[tpm_line[0]] = tpm_line[2]
     sorted_dict = {}
     sorted_keys = sorted(word_dict, key=word_dict.get, reverse=True)
-    counter = 0
-    for w in sorted_keys:
-        sorted_dict[w] = word_dict[w]
-        counter = counter + 1
-        if counter == number_of_top_students:
-            return sorted_dict
+    return sorted_dict
 
 
-# print(get_top_performers('students.csv', 3))
+print(get_top_performers('students.csv', 3))
+
+
 def line_prepender(filename, line):
     with open(filename, 'r+') as f:
         content = f.read()
@@ -65,8 +56,8 @@ def line_prepender(filename, line):
         f.write(line.rstrip('\r\n') + '\n' + content)
 
 
-def get_top_performers_scv(file_path, number_of_top_students):
-    # line_prepender('students.csv', 'student name,age,average mark')
+def get_top_performers_write_scv(file_path, number_of_top_students):
+    # USE THIS LINE TO ADD TO LINE TO SCV FILE line_prepender('students.csv', 'student name,age,average mark')
     csvData = pandasForSortingCSV.read_csv(file_path)
     print(csvData)
     csvData.sort_values(["age"],
@@ -75,32 +66,29 @@ def get_top_performers_scv(file_path, number_of_top_students):
                         inplace=True)
     csvData.to_csv("sorted_students_age.csv")
 
+    # my_file = open("sorted_students.scv", "a")
+    # my_file.write(csvData)
+    # my_file.close()
 
-# my_file = open("sorted_students.scv", "a")
-# my_file.write(csvData)
-# my_file.close()
+    # print(get_top_performers('students.csv', 3))
+
+    # filecmp.cmp(f1, f2, shallow=True)
+
+    # print_duplicates('dz')
 
 
-# print(get_top_performers('students.csv', 3))
+prev_output = None
 
-# filecmp.cmp(f1, f2, shallow=True)
 
-# print_duplicates('dz')
-def prev_res(func):
-    with open('output.txt', "a") as f:
-        try:
-            prev_output = f.readlines()
-        except:
-            prev_output = []
-
+def show_previous_result(func):
     def inner(string):
-
-        if not prev_output: print("Previous Result:", None)
+        global prev_output
+        if not prev_output:
+            print("Previous Result:", None)
         if prev_output:
-            for item in prev_output: print("previous res:", item)
+            print("previous res:", prev_output)
 
-        with open('output.txt', 'a') as file:
-            file.write(str(func(string)) + "\n")
+        prev_output = str(func(string)) + "\n"
 
         print("new res", func(string))
 
@@ -110,32 +98,34 @@ def prev_res(func):
 
 
 ### Task 4.5
-@prev_res
+@show_previous_result
 def print_duplicates(dir):
     unique = []
     duplicates = []
     dir_files = os.listdir(dir)
     files_length = len(os.listdir(dir))
-    for x in range(files_length):
-        for i in range(x + 1, files_length):
-            if filecmp.cmp(dir + '/' + str(dir_files[x]), dir + '/' + str(dir_files[i]), shallow=True):
-                duplicates.append((str(dir_files[x]) + " and " + str(dir_files[i]) + " are duplicated by content"))
+    for i in range(files_length):
+        for j in range(i + 1, files_length):
+            if filecmp.cmp(dir + '/' + str(dir_files[i]), dir + '/' + str(dir_files[j]), shallow=True):
+                duplicates.append((str(dir_files[i]) + " and " + str(dir_files[j]) + " are duplicated by content"))
     return duplicates
 
 
-# print_duplicates('dz')
-# print_duplicates('dz')
+#print_duplicates('dz')
+#print_duplicates('dz')
+
 
 ### Task 4.5
 def memoize(function):
-    memo = {}
+    memo = None
 
-    def wrapper(*args):
-        if len(memo) > 0:
-            return memo[0]
+    def wrapper(*args, **kwargs):
+        nonlocal memo
+        if memo:
+            return memo
         else:
             result = function(*args)
-            memo[0] = result
+            memo = result
             return result
 
     return wrapper
@@ -151,6 +141,7 @@ def summarise(a, b):
 # print(summarise(1, 2))
 # print(summarise(1, 100))
 
+
 def validate(low_bound, upper_bound):
     def my_decorator(func):
         def wrapper(args):
@@ -158,7 +149,9 @@ def validate(low_bound, upper_bound):
                 if x < low_bound or x > upper_bound:
                     return 'Function call is no valid!'
             return func(args)
+
         return wrapper
+
     return my_decorator
 
 
@@ -166,6 +159,5 @@ def validate(low_bound, upper_bound):
 def set_pixel(pixel_values):
     return "Pixel created!"
 
-
 # print(set_pixel((0, 127, 300)))
-print(set_pixel((0, 127, 250)))
+# print(set_pixel((0, 127, 250)))
